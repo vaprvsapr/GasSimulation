@@ -20,7 +20,7 @@ private:
 public:
     explicit System(Vec2D _size)
     {
-
+        // comment
     }
 
     void AddParticles(
