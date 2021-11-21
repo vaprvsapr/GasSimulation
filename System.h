@@ -29,12 +29,13 @@ public:
             Properties _properties)
     {
         unsigned counter = 0;
+
         unsigned initial_number_of_particles_in_the_system = particles.size();
 
         while (counter < _number_of_particles)
         {
-            double position_x = drand48() * (system_size.x - 2 * _properties.radius) + _properties.radius;
-            double position_y = drand48() * (system_size.y - 2 * _properties.radius) + _properties.radius;
+            double position_x = drand48() * (system_size.x - (2 * _properties.radius)) + _properties.radius;
+            double position_y = drand48() * (system_size.y - (2 * _properties.radius)) + _properties.radius;
 
             double velocity_x = drand48() * (_initial_velocity);
             double velocity_y = (drand48() > 0.5 ? 1 : -1 ) *
@@ -54,11 +55,11 @@ public:
                     break;
                 }
             }
-            // cout << "-";
+            cout << "-";
             if(no_contact) {
                 particles.push_back(new_particle);
                 counter++;
-                // cout << particles.system_size() << " " << position_x << " " << position_y << endl; // uncomment if you want to see process of adding particles
+                cout << particles.size() << " " << position_x << " " << position_y << endl; // uncomment if you want to see process of adding particles
             }
         }
         cout << "Successfully added: " << particles.size() - initial_number_of_particles_in_the_system << " particles." << endl;
@@ -68,7 +69,7 @@ public:
     {
         return (sqrt(
                 pow(lhs.position.x - rhs.position.x, 2) +
-                pow(lhs.position.y - rhs.position.y, 2)) >
+                pow(lhs.position.y - rhs.position.y, 2)) <
                 (lhs.properties.radius + rhs.properties.radius));
     }
 
