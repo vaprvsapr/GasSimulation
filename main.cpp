@@ -5,9 +5,7 @@
 
 
 
-int main() {
-    System sys({10, 10});
-    sys.AddParticles(10, 10, {1, 1});
-
+int main()
+{
     return 0;
 }

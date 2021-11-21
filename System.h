@@ -12,15 +12,15 @@ using namespace std;
 
 class System {
 private:
-    Vec2D size{};
+    Vec2D system_size{};
     unsigned number_of_particles = 0;
 
     vector<Particle> particles = {};
 
 public:
-    explicit System(Vec2D _size)
+    explicit System(Vec2D _system_size)
     {
-        // comment
+        system_size = _system_size;
     }
 
     void AddParticles(
@@ -28,14 +28,47 @@ public:
             double _initial_velocity,
             Properties _properties)
     {
+        unsigned counter = 0;
+        unsigned initial_number_of_particles_in_the_system = particles.size();
 
+        while (counter < _number_of_particles)
+        {
+            double position_x = drand48() * (system_size.x - 2 * _properties.radius) + _properties.radius;
+            double position_y = drand48() * (system_size.y - 2 * _properties.radius) + _properties.radius;
+
+            double velocity_x = drand48() * (_initial_velocity);
+            double velocity_y = (drand48() > 0.5 ? 1 : -1 ) *
+                    sqrt(_initial_velocity * _initial_velocity -
+                    velocity_x * velocity_x);
+
+            Particle new_particle({position_x, position_y},
+                                  {velocity_x, velocity_y},
+                                  _properties);
+
+            bool no_contact = true;
+            for(auto& particle : particles)
+            {
+                if(IsContactWithParticle(new_particle, particle))
+                {
+                    no_contact = false;
+                    break;
+                }
+            }
+            // cout << "-";
+            if(no_contact) {
+                particles.push_back(new_particle);
+                counter++;
+                // cout << particles.system_size() << " " << position_x << " " << position_y << endl; // uncomment if you want to see process of adding particles
+            }
+        }
+        cout << "Successfully added: " << particles.size() - initial_number_of_particles_in_the_system << " particles." << endl;
     }
 
-    bool IsContactWithParticle(Particle& lhs, Particle& rhs) const
+    static bool IsContactWithParticle(Particle& lhs, Particle& rhs)
     {
         return (sqrt(
                 pow(lhs.position.x - rhs.position.x, 2) +
-                pow(lhs.position.y - rhs.position.y, 2)) <
+                pow(lhs.position.y - rhs.position.y, 2)) >
                 (lhs.properties.radius + rhs.properties.radius));
     }
 
@@ -56,10 +89,10 @@ public:
     {
         bool is_contact_with_horizontal_boarder =
                 (_particle.position.y < _particle.properties.radius) or
-                (_particle.position.y > size.y - _particle.properties.radius);
+                (_particle.position.y > system_size.y - _particle.properties.radius);
         bool is_contact_with_vertical_boarder =
                 (_particle.position.x < _particle.properties.radius) or
-                (_particle.position.x > size.x - _particle.properties.radius);
+                (_particle.position.x > system_size.x - _particle.properties.radius);
         return make_pair(is_contact_with_horizontal_boarder, is_contact_with_vertical_boarder);
     }
 
@@ -72,7 +105,15 @@ public:
             _particle.velocity.x *= -1;
     }
 
+    [[nodiscard]] Vec2D GetSystemSize() const
+    {
+        return system_size;
+    }
 
+    [[nodiscard]] vector<Particle> GetParticles() const
+    {
+        return particles;
+    }
 };
 
 

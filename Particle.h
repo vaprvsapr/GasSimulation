@@ -22,9 +22,6 @@ public:
         velocity = _velocity;
         properties = _properties;
     }
-
-
-
 };
 
 
