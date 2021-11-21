@@ -1,6 +1,5 @@
 #include "SFML/Graphics.hpp"
 #include <iostream>
-#include <cmath>
 #include "System.h"
 
 
@@ -8,7 +7,9 @@
 int main()
 {
     System system({1000, 800});
-    system.AddParticles(50, 10, {10, 1});
+    system.AddParticles(5000, 10, {2, 1});
+//    system.AddParticle({20, 120}, {10, 0}, {20, 1});
+//    system.AddParticle({100, 20}, {0, 10}, {20, 1});
 
     sf::RenderWindow window(sf::VideoMode(unsigned(system.GetSystemSize().x), unsigned(system.GetSystemSize().y)), "SFML works!");
     sf::RectangleShape BlackBackground({float(system.GetSystemSize().x), float(system.GetSystemSize().y)});
@@ -31,8 +32,9 @@ int main()
             window.draw(shape);
         }
         system.OperatorMove();
-        system.OperatorCollide();
-//        cout << "energy: " << system.OperatorComputeEnergy() << endl;
+        system.OperatorCollideWithBorder();
+        system.OperatorCollideWithParticleComplexityNSquared();
+        cout << "energy: " << system.OperatorComputeEnergy() << endl;
 
         window.display();
     }

@@ -33,7 +33,7 @@ private:
     {
         return (sqrt(
                 pow(lhs.position.x - rhs.position.x, 2) +
-                pow(lhs.position.y - rhs.position.y, 2)) <
+                pow(lhs.position.y - rhs.position.y, 2)) <=
                 (lhs.properties.radius + rhs.properties.radius));
     }
 public:
@@ -42,14 +42,17 @@ public:
         system_size = _system_size;
     }
 
+    void AddParticle(Vec2D _position, Vec2D _velocity, Properties _properties)
+    {
+        particles.emplace_back(_position, _velocity, _properties);
+    }
+
     void AddParticles(
             unsigned _number_of_particles,
             double _initial_velocity,
             Properties _properties)
     {
         unsigned counter = 0;
-
-        unsigned initial_number_of_particles_in_the_system = particles.size();
 
         while (counter < _number_of_particles)
         {
@@ -74,18 +77,17 @@ public:
                     break;
                 }
             }
-            //cout << "-";
+
             if(no_contact) {
                 particles.push_back(new_particle);
                 counter++;
                 cout << particles.size() << " " << position_x << " " << position_y << endl; // uncomment if you want to see process of adding particles
             }
         }
-        //cout << "Successfully added: " << particles.size() - initial_number_of_particles_in_the_system << " particles." << endl;
     }
 
 
-    void CollideWithParticle(Particle& lhs, Particle& rhs)
+    static void CollideWithParticle(Particle& lhs, Particle& rhs)
     {
         if(IsContactWithParticle(lhs, rhs))
         {
@@ -128,13 +130,17 @@ public:
         }
     }
 
-    void OperatorCollide()
+    void OperatorCollideWithBorder()
     {
         for(auto& particle : particles)
         {
             CollideWithBorder(particle);
 
         }
+    }
+
+    void OperatorCollideWithParticleComplexityNSquared()
+    {
         for(int i = 0; i < particles.size() - 1; i++)
         {
             for(int j = i + 1; j < particles.size(); j++)
