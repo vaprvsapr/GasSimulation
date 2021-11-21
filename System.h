@@ -85,20 +85,23 @@ public:
     }
 
 
-    void OperatorCollisionWithParticle(Particle& lhs, Particle& rhs)
+    void CollideWithParticle(Particle& lhs, Particle& rhs)
     {
-        Vec2D new_lhs_velocity = lhs.velocity -
-                ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position)) +
-                ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
-        Vec2D new_rhs_velocity = rhs.velocity -
-                ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position)) +
-                ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position));
+        if(IsContactWithParticle(lhs, rhs))
+        {
+            Vec2D new_lhs_velocity = lhs.velocity -
+                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position)) +
+                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
+            Vec2D new_rhs_velocity = rhs.velocity -
+                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position)) +
+                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position));
 
-        lhs.velocity = new_lhs_velocity;
-        rhs.velocity = new_rhs_velocity;
+            lhs.velocity = new_lhs_velocity;
+            rhs.velocity = new_rhs_velocity;
+        }
     }
 
-    void OperatorCollisionWithBorder(Particle& _particle)
+    void CollideWithBorder(Particle& _particle)
     {
         pair<bool, bool> is_contact_with_border = IsContactWithBorder(_particle);
         if(is_contact_with_border.first)
@@ -115,6 +118,40 @@ public:
     [[nodiscard]] vector<Particle> GetParticles() const
     {
         return particles;
+    }
+
+    void OperatorMove()
+    {
+        for(auto& particle : particles)
+        {
+            particle.position = {particle.position.x + particle.velocity.x * 0.001, particle.position.y + particle.velocity.y * 0.001};
+        }
+    }
+
+    void OperatorCollide()
+    {
+        for(auto& particle : particles)
+        {
+            CollideWithBorder(particle);
+
+        }
+        for(int i = 0; i < particles.size() - 1; i++)
+        {
+            for(int j = i + 1; j < particles.size(); j++)
+            {
+                CollideWithParticle(particles[i], particles[j]);
+            }
+        }
+    }
+
+    double OperatorComputeEnergy()
+    {
+        double energy = 0;
+        for(auto& particle : particles)
+        {
+            energy += pow(particle.velocity.x, 2) + pow(particle.velocity.y, 2);
+        }
+        return energy;
     }
 };
 
