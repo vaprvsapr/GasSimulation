@@ -17,6 +17,25 @@ private:
 
     vector<Particle> particles = {};
 
+
+    pair<bool, bool> IsContactWithBorder(Particle& _particle) const
+    {
+        bool is_contact_with_horizontal_boarder =
+                (_particle.position.y < _particle.properties.radius) or
+                (_particle.position.y > system_size.y - _particle.properties.radius);
+        bool is_contact_with_vertical_boarder =
+                (_particle.position.x < _particle.properties.radius) or
+                (_particle.position.x > system_size.x - _particle.properties.radius);
+        return make_pair(is_contact_with_horizontal_boarder, is_contact_with_vertical_boarder);
+    }
+
+    static bool IsContactWithParticle(Particle& lhs, Particle& rhs)
+    {
+        return (sqrt(
+                pow(lhs.position.x - rhs.position.x, 2) +
+                pow(lhs.position.y - rhs.position.y, 2)) <
+                (lhs.properties.radius + rhs.properties.radius));
+    }
 public:
     explicit System(Vec2D _system_size)
     {
@@ -55,23 +74,16 @@ public:
                     break;
                 }
             }
-            cout << "-";
+            //cout << "-";
             if(no_contact) {
                 particles.push_back(new_particle);
                 counter++;
                 cout << particles.size() << " " << position_x << " " << position_y << endl; // uncomment if you want to see process of adding particles
             }
         }
-        cout << "Successfully added: " << particles.size() - initial_number_of_particles_in_the_system << " particles." << endl;
+        //cout << "Successfully added: " << particles.size() - initial_number_of_particles_in_the_system << " particles." << endl;
     }
 
-    static bool IsContactWithParticle(Particle& lhs, Particle& rhs)
-    {
-        return (sqrt(
-                pow(lhs.position.x - rhs.position.x, 2) +
-                pow(lhs.position.y - rhs.position.y, 2)) <
-                (lhs.properties.radius + rhs.properties.radius));
-    }
 
     void OperatorCollisionWithParticle(Particle& lhs, Particle& rhs)
     {
@@ -84,17 +96,6 @@ public:
 
         lhs.velocity = new_lhs_velocity;
         rhs.velocity = new_rhs_velocity;
-    }
-
-    pair<bool, bool> IsContactWithBorder(Particle& _particle) const
-    {
-        bool is_contact_with_horizontal_boarder =
-                (_particle.position.y < _particle.properties.radius) or
-                (_particle.position.y > system_size.y - _particle.properties.radius);
-        bool is_contact_with_vertical_boarder =
-                (_particle.position.x < _particle.properties.radius) or
-                (_particle.position.x > system_size.x - _particle.properties.radius);
-        return make_pair(is_contact_with_horizontal_boarder, is_contact_with_vertical_boarder);
     }
 
     void OperatorCollisionWithBorder(Particle& _particle)
