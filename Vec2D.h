@@ -58,6 +58,20 @@ Vec2D ConnectVec2D(const Vec2D& lhs, const Vec2D& rhs)
     return {rhs.x - lhs.x, rhs.y - lhs.y};
 }
 
+bool operator==(const Vec2D& lhs, const Vec2D& rhs)
+{
+    return lhs.x == rhs.x and lhs.y == rhs.y;
+}
+
+Vec2D operator*(Vec2D vec, double& alpha)
+{
+    return {vec.x * alpha, vec.y * alpha};
+}
+
+Vec2D operator/(Vec2D vec, double alpha)
+{
+    return {vec.x / alpha, vec.y / alpha};
+}
 
 
 #endif //GASSIMULATION_VEC2D_H

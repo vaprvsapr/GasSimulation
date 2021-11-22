@@ -8,12 +8,15 @@
 #include "Particle.h"
 #include <vector>
 #include <random>
+#include <algorithm>
+#include <set>
 using namespace std;
 
 class System {
 private:
     Vec2D system_size{};
     unsigned number_of_particles = 0;
+    double delta_time = 0.1;
 
     vector<Particle> particles = {};
 
@@ -81,7 +84,7 @@ public:
             if(no_contact) {
                 particles.push_back(new_particle);
                 counter++;
-                cout << particles.size() << " " << position_x << " " << position_y << endl; // uncomment if you want to see process of adding particles
+//                cout << particles.size() << " " << position_x << " " << position_y << endl; // uncomment if you want to see process of adding particles
             }
         }
     }
@@ -91,15 +94,28 @@ public:
     {
         if(IsContactWithParticle(lhs, rhs))
         {
-            Vec2D new_lhs_velocity = lhs.velocity -
-                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position)) +
-                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
-            Vec2D new_rhs_velocity = rhs.velocity -
-                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position)) +
-                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position));
+            Vec2D lhs_perpendicular = lhs.velocity - ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position));
+            Vec2D lhs_parallel = lhs.velocity - lhs_perpendicular;
+            Vec2D rhs_perpendicular = rhs.velocity - ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
+            Vec2D rhs_parallel = rhs.velocity - rhs_perpendicular;
+            Vec2D velocity_C = (lhs_parallel * lhs.properties.mass + rhs_parallel * rhs.properties.mass) / (lhs.properties.mass + rhs.properties.mass);
+            Vec2D lhs_parallel_relative = lhs_parallel - velocity_C;
+            Vec2D rhs_parallel_relative = rhs_parallel - velocity_C;
+            lhs_parallel = rhs_parallel_relative * rhs.properties.mass / lhs.properties.mass + velocity_C;
+            rhs_parallel = lhs_parallel_relative * lhs.properties.mass / rhs.properties.mass + velocity_C;
+            lhs.velocity = lhs_parallel + lhs_perpendicular;
+            rhs.velocity = rhs_parallel + rhs_perpendicular;
 
-            lhs.velocity = new_lhs_velocity;
-            rhs.velocity = new_rhs_velocity;
+
+//            Vec2D new_lhs_velocity = lhs.velocity -
+//                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position)) +
+//                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
+//            Vec2D new_rhs_velocity = rhs.velocity -
+//                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position)) +
+//                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position));
+//
+//            lhs.velocity = new_lhs_velocity;
+//            rhs.velocity = new_rhs_velocity;
         }
     }
 
@@ -126,7 +142,7 @@ public:
     {
         for(auto& particle : particles)
         {
-            particle.position = {particle.position.x + particle.velocity.x * 0.001, particle.position.y + particle.velocity.y * 0.001};
+            particle.position = {particle.position.x + particle.velocity.x * delta_time, particle.position.y + particle.velocity.y * delta_time};
         }
     }
 
@@ -147,6 +163,19 @@ public:
             {
                 CollideWithParticle(particles[i], particles[j]);
             }
+        }
+    }
+
+    void OperatorCollideWithParticle()
+    {
+
+    }
+
+    void OperatorGravity()
+    {
+        for(auto& particle : particles)
+        {
+            particle.velocity.y += delta_time * 10;
         }
     }
 

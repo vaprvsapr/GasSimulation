@@ -14,5 +14,9 @@ public:
     Properties() = default;
 };
 
+bool operator==(const Properties lhs, const Properties rhs)
+{
+    return lhs.radius == rhs.radius and lhs.mass == rhs.mass;
+}
 
 #endif //GASSIMULATION_PROPERTIES_H
