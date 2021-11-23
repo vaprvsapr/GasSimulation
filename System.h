@@ -166,13 +166,40 @@ public:
         }
     }
 
-    void OperatorCollideWithParticle()
+    void OperatorCollideWithParticleComplexityNSquaredDividedByM(unsigned M)
     {
         vector<vector<vector<Particle>>> grid;
 
-        const int n_vertical = 10;
-        const int n_horizontal = 10;
+        grid.resize(M);
+        for(auto& column : grid)
+            column.resize(M);
 
+        double delta_x = system_size.x / M;
+        double delta_y = system_size.y / M;
+
+        for(auto& particle : particles)
+        {
+            grid[floor(particle.position.x / delta_x)][floor(particle.position.y / delta_y)].push_back(particle);
+        }
+
+        for(auto& column : grid)
+        {
+            for(auto& element : column)
+            {
+                for(int i = 0; i < int(element.size()) - 1; i++)
+                {
+                    for(int j = i + 1; j < element.size(); j++)
+                    {
+                        CollideWithParticle(element[i], element[j]);
+                    }
+                }
+            }
+        }
+        particles.clear();
+        for(auto& column : grid)
+            for(auto& element : column)
+                for(auto& particle : element)
+                    particles.push_back(particle);
     }
 
     void OperatorGravity()

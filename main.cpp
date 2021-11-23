@@ -7,8 +7,8 @@ int main()
     System system({1000, 800});
 
 
-    system.AddParticles(100, 1, {10, 4});
-    system.AddParticles(1, 1, {20, 40});
+    system.AddParticles(10000, 1, {1, 1});
+//    system.AddParticles(1, 1, {20, 40});
 //    system.AddParticle({30, 101}, {1, 0}, {10, 2});
 //    system.AddParticle({200, 100}, {0, 0}, {10, 1});
 
@@ -35,10 +35,10 @@ int main()
 
         system.OperatorMove();
         system.OperatorCollideWithBorder();
-//        system.OperatorCollideWithParticle();
-        system.OperatorCollideWithParticleComplexityNSquared();
+        system.OperatorCollideWithParticleComplexityNSquaredDividedByM(20);
+//        system.OperatorCollideWithParticleComplexityNSquared();
 //        system.OperatorGravity();
-        cout << "energy: " << system.OperatorComputeEnergy() << endl;
+//        cout << "energy: " << system.OperatorComputeEnergy() << endl;
 
         window.display();
     }
