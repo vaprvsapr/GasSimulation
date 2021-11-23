@@ -168,6 +168,10 @@ public:
 
     void OperatorCollideWithParticle()
     {
+        vector<vector<vector<Particle>>> grid;
+
+        const int n_vertical = 10;
+        const int n_horizontal = 10;
 
     }
 
@@ -184,7 +188,7 @@ public:
         double energy = 0;
         for(auto& particle : particles)
         {
-            energy += pow(particle.velocity.x, 2) + pow(particle.velocity.y, 2);
+            energy += (pow(particle.velocity.x, 2) + pow(particle.velocity.y, 2)) * particle.properties.mass / 2;
         }
         return energy;
     }

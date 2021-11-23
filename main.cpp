@@ -6,10 +6,11 @@ int main()
 {
     System system({1000, 800});
 
-//    system.AddParticles(1, 1, {200, 4});
-//    system.AddParticles(100, 1, {10, 4});
-    system.AddParticle({30, 101}, {1, 0}, {10, 2});
-    system.AddParticle({200, 100}, {0, 0}, {10, 1});
+
+    system.AddParticles(100, 1, {10, 4});
+    system.AddParticles(1, 1, {20, 40});
+//    system.AddParticle({30, 101}, {1, 0}, {10, 2});
+//    system.AddParticle({200, 100}, {0, 0}, {10, 1});
 
     sf::RenderWindow window(sf::VideoMode(unsigned(system.GetSystemSize().x), unsigned(system.GetSystemSize().y)), "SFML works!");
     sf::RectangleShape BlackBackground({float(system.GetSystemSize().x), float(system.GetSystemSize().y)});
@@ -34,10 +35,10 @@ int main()
 
         system.OperatorMove();
         system.OperatorCollideWithBorder();
-        system.OperatorCollideWithParticle();
+//        system.OperatorCollideWithParticle();
         system.OperatorCollideWithParticleComplexityNSquared();
 //        system.OperatorGravity();
-//        cout << "energy: " << system.OperatorComputeEnergy() << endl;
+        cout << "energy: " << system.OperatorComputeEnergy() << endl;
 
         window.display();
     }
