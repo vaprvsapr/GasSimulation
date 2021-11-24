@@ -238,7 +238,7 @@ public:
         double energy = 0;
         for(auto& particle : particles)
         {
-            energy += (pow(particle.velocity.x, 2) + pow(particle.velocity.y, 2)) * particle.properties.mass / 2;
+            energy += particle.velocity.Modulus() * particle.properties.mass / 2;
         }
         return energy;
     }
