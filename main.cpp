@@ -1,16 +1,15 @@
 #include <iostream>
 #include "System.h"
-#include "Sfml.h"
+
 
 int main()
 {
     System system({1000, 800});
-    SimulationWindow simulation_window(system);
 
 
-    system.AddParticles(1000, 1, {1, 1});
+    system.AddParticles(10000, 1, {1, 1});
 
-    simulation_window.ShowSimulationWindow();
+    system.ShowSimulationWindow();
 //    system.AddParticles(1, 1, {20, 40});
 //    system.AddParticle({30, 101}, {1, 0}, {10, 2});
 //    system.AddParticle({200, 100}, {0, 0}, {10, 1});

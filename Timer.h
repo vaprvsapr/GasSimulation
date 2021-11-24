@@ -22,7 +22,7 @@ public:
     }
     ~Timer()
     {
-        std::cout << clock() - time;
+        std::cout << clock() - time << message << std::endl;
     }
 };
 

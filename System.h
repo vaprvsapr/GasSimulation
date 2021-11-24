@@ -5,6 +5,7 @@
 #ifndef GASSIMULATION_SYSTEM_H
 #define GASSIMULATION_SYSTEM_H
 
+#include "SFML/Graphics.hpp"
 #include "Particle.h"
 #include <vector>
 #include <random>
@@ -26,8 +27,11 @@ private:
     double delta_time = 0.1;
 
     vector<Particle> particles = {};
+private:
+    sf::RenderWindow window;
+    sf::RectangleShape black_background;
 
-
+private:
     pair<bool, bool> IsContactWithBorder(Particle& _particle) const
     {
         bool is_contact_with_horizontal_boarder =
@@ -47,9 +51,16 @@ private:
                 (lhs.properties.radius + rhs.properties.radius));
     }
 public:
-    explicit System(Vec2D _system_size)
+    explicit System(Vec2D _system_size):
+            window(
+                    sf::RenderWindow(sf::VideoMode(
+                                    unsigned(_system_size.x),
+                                    unsigned(_system_size.y)),
+                                    "Simulation window.")),
+            black_background({float(_system_size.x), float(_system_size.y)})
     {
         system_size = _system_size;
+        black_background.setFillColor((sf::Color::Black));
     }
 
     void AddParticle(Vec2D _position, Vec2D _velocity, Properties _properties)
@@ -245,6 +256,38 @@ public:
     double AverageNumberOfCollisions()
     {
         return (double(number_of_collisions_between_particles) / double(particles.size()));
+    }
+
+    void ShowSimulationWindow()
+    {
+        while(window.isOpen())
+        {
+            window.clear();
+            sf::Event event{};
+            while(window.pollEvent(event))
+            {
+                if(event.type == sf::Event::Closed)
+                    window.close();
+            }
+
+            for(auto& particle : particles)
+            {
+                sf::CircleShape circle_shape;
+                circle_shape.setRadius(float(particle.properties.radius));
+                circle_shape.setPosition(
+                        float(particle.position.x - particle.properties.radius),
+                        float(particle.position.y - particle.properties.radius));
+                window.draw(circle_shape);
+            }
+
+            OperatorMove();
+            OperatorCollideWithBorder();
+            OperatorCollideWithParticle(MODE::SECOND);
+            window.display();
+
+            cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
+//
+        }
     }
 };
 
