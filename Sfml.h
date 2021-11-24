@@ -54,8 +54,7 @@ public:
             system.OperatorCollideWithParticle(MODE::SECOND);
             window.display();
         }
-        }
-
+    }
 };
 
 #endif //MAIN_CPP_SFML_H

@@ -189,7 +189,7 @@ public:
         }
     }
 
-    void OperatorCollideWithParticleComplexityNSquaredDividedByM(unsigned M)
+    void OperatorCollideWithParticleComplexityNSquaredDividedByM(unsigned M) // NEEDS CORRECTION
     {
         vector<vector<vector<Particle>>> grid;
 
