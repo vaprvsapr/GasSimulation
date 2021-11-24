@@ -35,7 +35,8 @@ int main()
 
         system.OperatorMove();
         system.OperatorCollideWithBorder();
-        system.OperatorCollideWithParticleComplexityNSquaredDividedByM(20);
+        system.OperatorCollideWithParticle(MODE::SECOND);
+//        system.OperatorCollideWithParticleComplexityNSquaredDividedByM(20);
 //        system.OperatorCollideWithParticleComplexityNSquared();
 //        system.OperatorGravity();
 //        cout << "energy: " << system.OperatorComputeEnergy() << endl;

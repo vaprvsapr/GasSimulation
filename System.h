@@ -12,6 +12,12 @@
 #include <set>
 using namespace std;
 
+enum class MODE {
+    FIRST,
+    SECOND,
+    THIRD
+};
+
 class System {
 private:
     Vec2D system_size{};
@@ -33,7 +39,7 @@ private:
         return make_pair(is_contact_with_horizontal_boarder, is_contact_with_vertical_boarder);
     }
 
-    bool IsContactWithParticle(Particle& lhs, Particle& rhs)
+    static bool IsContactWithParticle(Particle& lhs, Particle& rhs)
     {
         return (sqrt(
                 pow(lhs.position.x - rhs.position.x, 2) +
@@ -154,6 +160,21 @@ public:
         for(auto& particle : particles)
         {
             CollideWithBorder(particle);
+        }
+    }
+
+    void OperatorCollideWithParticle(MODE mode)
+    {
+        switch (mode)
+        {
+            case MODE::FIRST:
+                OperatorCollideWithParticleComplexityNSquared();
+                break;
+            case MODE::SECOND:
+                OperatorCollideWithParticleComplexityNSquaredDividedByM(20);
+                break;
+            case MODE::THIRD:
+                break;
         }
     }
 
