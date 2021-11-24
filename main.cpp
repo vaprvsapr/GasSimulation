@@ -39,6 +39,7 @@ int main()
 //        system.OperatorCollideWithParticleComplexityNSquared();
 //        system.OperatorGravity();
 //        cout << "energy: " << system.OperatorComputeEnergy() << endl;
+        cout << "average number of collisions: " << system.AverageNumberOfCollisions() << endl;
 
         window.display();
     }

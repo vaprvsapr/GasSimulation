@@ -16,6 +16,7 @@ class System {
 private:
     Vec2D system_size{};
     unsigned number_of_particles = 0;
+    unsigned long long number_of_collisions_between_particles = 0;
     double delta_time = 0.1;
 
     vector<Particle> particles = {};
@@ -32,7 +33,7 @@ private:
         return make_pair(is_contact_with_horizontal_boarder, is_contact_with_vertical_boarder);
     }
 
-    static bool IsContactWithParticle(Particle& lhs, Particle& rhs)
+    bool IsContactWithParticle(Particle& lhs, Particle& rhs)
     {
         return (sqrt(
                 pow(lhs.position.x - rhs.position.x, 2) +
@@ -90,10 +91,12 @@ public:
     }
 
 
-    static void CollideWithParticle(Particle& lhs, Particle& rhs)
+    void CollideWithParticle(Particle& lhs, Particle& rhs)
     {
         if(IsContactWithParticle(lhs, rhs))
         {
+            number_of_collisions_between_particles++;
+
             Vec2D lhs_perpendicular = lhs.velocity - ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position));
             Vec2D lhs_parallel = lhs.velocity - lhs_perpendicular;
             Vec2D rhs_perpendicular = rhs.velocity - ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
@@ -151,7 +154,6 @@ public:
         for(auto& particle : particles)
         {
             CollideWithBorder(particle);
-
         }
     }
 
@@ -218,6 +220,10 @@ public:
             energy += (pow(particle.velocity.x, 2) + pow(particle.velocity.y, 2)) * particle.properties.mass / 2;
         }
         return energy;
+    }
+    double AverageNumberOfCollisions()
+    {
+        return (double(number_of_collisions_between_particles) / double(particles.size()));
     }
 };
 
