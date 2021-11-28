@@ -13,6 +13,7 @@ public:
     Vec2D position{};
     Vec2D velocity{};
     Properties properties{};
+    bool collided = false;
 
     Particle(Vec2D _position,
              Vec2D _velocity,
@@ -23,12 +24,6 @@ public:
         properties = _properties;
     }
 };
-
-// not very meaningful but allows work with sets
-bool operator<(const Particle lsh, const Particle rhs)
-{
-    return true;
-}
 
 bool operator==(const Particle lhs, const Particle rhs)
 {

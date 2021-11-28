@@ -126,7 +126,8 @@ public:
             lhs.velocity = lhs_parallel + lhs_perpendicular;
             rhs.velocity = rhs_parallel + rhs_perpendicular;
 
-
+            lhs.collided = true;
+            rhs.collided = true;
 //            Vec2D new_lhs_velocity = lhs.velocity -
 //                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position)) +
 //                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
@@ -163,6 +164,7 @@ public:
         for(auto& particle : particles)
         {
             particle.position = {particle.position.x + particle.velocity.x * delta_time, particle.position.y + particle.velocity.y * delta_time};
+            particle.collided = false;
         }
     }
 
@@ -185,6 +187,7 @@ public:
                 OperatorCollideWithParticleComplexityNSquaredDividedByM(20);
                 break;
             case MODE::THIRD:
+                OperatorCollideWithParticle();
                 break;
         }
     }
@@ -236,6 +239,48 @@ public:
                     particles.push_back(particle);
     }
 
+    void OperatorCollideWithParticle()
+    {
+        vector<Particle> sorted_particles = particles;
+        sort(sorted_particles.begin(), sorted_particles.end(), [](Particle& lhs, Particle& rhs){
+            return lhs.position.x < rhs.position.x;
+        });
+
+        int particles_size = int(sorted_particles.size());
+        for(int i = 0; i < particles_size; i++)
+        {
+            if(sorted_particles[i].collided)
+                continue;
+
+            for(int j = i - 1; j >= 0; j--)
+            {
+                CollideWithParticle(sorted_particles[i], sorted_particles[j]);
+            }
+            for(int j = i + 1; j < particles_size; j++)
+            {
+                CollideWithParticle(sorted_particles[i], sorted_particles[j]);
+            }
+        }
+        sort(sorted_particles.begin(), sorted_particles.end(), [](Particle& lhs, Particle& rhs){
+            return lhs.position.y < rhs.position.y;
+        });
+        for(int i = 0; i < particles_size; i++)
+        {
+            if(sorted_particles[i].collided)
+                continue;
+
+            for(int j = i - 1; j >= 0; j--)
+            {
+                CollideWithParticle(sorted_particles[i], sorted_particles[j]);
+            }
+            for(int j = i + 1; j < particles_size; j++)
+            {
+                CollideWithParticle(sorted_particles[i], sorted_particles[j]);
+            }
+        }
+        particles = sorted_particles;
+    }
+
     void OperatorGravity()
     {
         for(auto& particle : particles)
@@ -282,11 +327,9 @@ public:
 
             OperatorMove();
             OperatorCollideWithBorder();
-            OperatorCollideWithParticle(MODE::SECOND);
+            OperatorCollideWithParticle(MODE::THIRD);
             window.display();
-
             cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
-//
         }
     }
 };
