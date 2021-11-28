@@ -102,7 +102,7 @@ public:
             if(no_contact) {
                 particles.push_back(new_particle);
                 counter++;
-//                cout << particles.size() << " " << position_x << " " << position_y << endl; // uncomment if you want to see process of adding particles
+                cout << particles.size() << " " << position_x << " " << position_y << endl; // uncomment if you want to see process of adding particles
             }
         }
     }
@@ -124,21 +124,19 @@ public:
             lhs_parallel = rhs_parallel_relative * rhs.properties.mass / lhs.properties.mass + velocity_C;
             rhs_parallel = lhs_parallel_relative * lhs.properties.mass / rhs.properties.mass + velocity_C;
 
-            Vec2D new_lhs_velocity = lhs.velocity -
-                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position)) +
-                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
-            Vec2D new_rhs_velocity = rhs.velocity -
-                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position)) +
-                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position));
+//            Vec2D new_lhs_velocity = lhs.velocity -
+//                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position)) +
+//                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
+//            Vec2D new_rhs_velocity = rhs.velocity -
+//                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position)) +
+//                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position));
 
             lhs.velocity = lhs_parallel + lhs_perpendicular;
             rhs.velocity = rhs_parallel + rhs_perpendicular;
 
-            cout << "vx: " << lhs.velocity.x << ", vy: " << lhs.velocity.y << "; nvx: " << new_lhs_velocity.x << ", nvy: " << new_lhs_velocity.y << endl;
+//            cout << "vx: " << lhs.velocity.x << ", vy: " << lhs.velocity.y << "; nvx: " << new_lhs_velocity.x << ", nvy: " << new_lhs_velocity.y << endl;
 //            lhs.velocity = new_lhs_velocity;
 //            rhs.velocity = new_rhs_velocity;
-
-
 
             lhs.collided = true;
             rhs.collided = true;
@@ -246,44 +244,51 @@ public:
 
     void OperatorCollideWithParticle()
     {
-        vector<Particle> sorted_particles = particles;
-        sort(sorted_particles.begin(), sorted_particles.end(), [](Particle& lhs, Particle& rhs){
+        sort(particles.begin(), particles.end(), [](Particle& lhs, Particle& rhs){
             return lhs.position.x < rhs.position.x;
         });
 
-        int particles_size = int(sorted_particles.size());
+        int particles_size = int(particles.size());
+        double radius = particles[0].properties.radius;
+        double delta;
         for(int i = 0; i < particles_size; i++)
         {
-            if(sorted_particles[i].collided)
+            if(particles[i].collided)
                 continue;
 
-            for(int j = i - 1; j >= 0; j--)
+            delta = 0;
+            for(int j = i - 1; j >= 0 and delta < radius; j--)
             {
-                CollideWithParticle(sorted_particles[i], sorted_particles[j]);
+                CollideWithParticle(particles[i], particles[j]);
+                delta  = particles[i].position.x - particles[j].position.x;
             }
-            for(int j = i + 1; j < particles_size; j++)
+            delta = 0;
+            for(int j = i + 1; j < particles_size and delta < radius; j++)
             {
-                CollideWithParticle(sorted_particles[i], sorted_particles[j]);
+                CollideWithParticle(particles[i], particles[j]);
+                delta = particles[j].position.x - particles[i].position.x;
             }
         }
-        sort(sorted_particles.begin(), sorted_particles.end(), [](Particle& lhs, Particle& rhs){
+        sort(particles.begin(), particles.end(), [](Particle& lhs, Particle& rhs){
             return lhs.position.y < rhs.position.y;
         });
         for(int i = 0; i < particles_size; i++)
         {
-            if(sorted_particles[i].collided)
+            if(particles[i].collided)
                 continue;
 
-            for(int j = i - 1; j >= 0; j--)
+            delta = 0;
+            for(int j = i - 1; j >= 0 and delta < radius; j--)
             {
-                CollideWithParticle(sorted_particles[i], sorted_particles[j]);
+                CollideWithParticle(particles[i], particles[j]);
+                delta = particles[i].position.y - particles[j].position.y;
             }
-            for(int j = i + 1; j < particles_size; j++)
+            for(int j = i + 1; j < particles_size and delta < radius; j++)
             {
-                CollideWithParticle(sorted_particles[i], sorted_particles[j]);
+                CollideWithParticle(particles[i], particles[j]);
+                delta = particles[j].position.y - particles[i].position.y;
             }
         }
-        particles = sorted_particles;
     }
 
     void OperatorGravity()
@@ -310,8 +315,11 @@ public:
 
     void ShowSimulationWindow()
     {
+        int epoch = 0;
+        clock_t time = clock();
         while(window.isOpen())
         {
+            epoch++;
             window.clear();
             sf::Event event{};
             while(window.pollEvent(event))
@@ -332,9 +340,14 @@ public:
 
             OperatorMove();
             OperatorCollideWithBorder();
-            OperatorCollideWithParticle(MODE::THIRD);
+            OperatorCollideWithParticle(MODE::SECOND);
             window.display();
             // cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
+
+            if(epoch % 1000 == 0){
+                cout << "1000 epochs last for " << (clock() - time) / 1000<< " ms." << endl;
+                time = clock();
+            }
         }
     }
 };

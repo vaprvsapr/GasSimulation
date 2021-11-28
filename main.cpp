@@ -6,8 +6,7 @@ int main()
 {
     System system({1000, 800});
 
-
-    system.AddParticles(100, 1, {10, 1});
+    system.AddParticles(10000, 1, {1, 1});
 
     system.ShowSimulationWindow();
 }
