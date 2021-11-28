@@ -123,20 +123,25 @@ public:
             Vec2D rhs_parallel_relative = rhs_parallel - velocity_C;
             lhs_parallel = rhs_parallel_relative * rhs.properties.mass / lhs.properties.mass + velocity_C;
             rhs_parallel = lhs_parallel_relative * lhs.properties.mass / rhs.properties.mass + velocity_C;
+
+            Vec2D new_lhs_velocity = lhs.velocity -
+                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position)) +
+                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
+            Vec2D new_rhs_velocity = rhs.velocity -
+                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position)) +
+                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position));
+
             lhs.velocity = lhs_parallel + lhs_perpendicular;
             rhs.velocity = rhs_parallel + rhs_perpendicular;
 
-            lhs.collided = true;
-            rhs.collided = true;
-//            Vec2D new_lhs_velocity = lhs.velocity -
-//                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position)) +
-//                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position));
-//            Vec2D new_rhs_velocity = rhs.velocity -
-//                                     ProjectionVec2D(rhs.velocity, ConnectVec2D(rhs.position, lhs.position)) +
-//                                     ProjectionVec2D(lhs.velocity, ConnectVec2D(lhs.position, rhs.position));
-//
+            cout << "vx: " << lhs.velocity.x << ", vy: " << lhs.velocity.y << "; nvx: " << new_lhs_velocity.x << ", nvy: " << new_lhs_velocity.y << endl;
 //            lhs.velocity = new_lhs_velocity;
 //            rhs.velocity = new_rhs_velocity;
+
+
+
+            lhs.collided = true;
+            rhs.collided = true;
         }
     }
 
@@ -329,7 +334,7 @@ public:
             OperatorCollideWithBorder();
             OperatorCollideWithParticle(MODE::THIRD);
             window.display();
-            cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
+            // cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
         }
     }
 };
