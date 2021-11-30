@@ -25,6 +25,7 @@ private:
     unsigned number_of_particles = 0;
     unsigned long long number_of_collisions_between_particles = 0;
     double delta_time = 0.1;
+    MODE mode;
 
     vector<Particle> particles = {};
 private:
@@ -51,7 +52,7 @@ private:
                 (lhs.properties.radius + rhs.properties.radius));
     }
 public:
-    explicit System(Vec2D _system_size):
+    explicit System(Vec2D _system_size, MODE _mode):
             window(
                     sf::RenderWindow(sf::VideoMode(
                                     unsigned(_system_size.x),
@@ -61,6 +62,7 @@ public:
     {
         system_size = _system_size;
         black_background.setFillColor((sf::Color::Black));
+        mode = _mode;
     }
 
     void AddParticle(Vec2D _position, Vec2D _velocity, Properties _properties)
@@ -308,6 +310,7 @@ public:
         }
         return energy;
     }
+
     double AverageNumberOfCollisions()
     {
         return (double(number_of_collisions_between_particles) / double(particles.size()));
@@ -340,11 +343,12 @@ public:
 
             OperatorMove();
             OperatorCollideWithBorder();
-            OperatorCollideWithParticle(MODE::SECOND);
+            OperatorCollideWithParticle(mode);
             window.display();
             // cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
 
-            if(epoch % 1000 == 0){
+            if(epoch % 1000 == 0)
+            {
                 cout << "1000 epochs last for " << (clock() - time) / 1000<< " ms." << endl;
                 time = clock();
             }
