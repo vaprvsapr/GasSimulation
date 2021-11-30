@@ -181,7 +181,7 @@ public:
         }
     }
 
-    void OperatorCollideWithParticle(MODE mode)
+    void OperatorCollideWithParticle()
     {
         switch (mode)
         {
@@ -192,7 +192,7 @@ public:
                 OperatorCollideWithParticleComplexityNSquaredDividedByM(20);
                 break;
             case MODE::THIRD:
-                OperatorCollideWithParticle();
+                OperatorCollideWithParticleTHIRD();
                 break;
         }
     }
@@ -244,7 +244,7 @@ public:
                     particles.push_back(particle);
     }
 
-    void OperatorCollideWithParticle()
+    void OperatorCollideWithParticleTHIRD()
     {
         sort(particles.begin(), particles.end(), [](Particle& lhs, Particle& rhs){
             return lhs.position.x < rhs.position.x;
@@ -301,12 +301,12 @@ public:
         }
     }
 
-    double OperatorComputeEnergy()
+    double OperatorComputeEnergy() const
     {
         double energy = 0;
         for(auto& particle : particles)
         {
-            energy += particle.velocity.Modulus() * particle.properties.mass / 2;
+            energy += particle.velocity.SquareLengthVec2D() * particle.properties.mass / 2;
         }
         return energy;
     }
@@ -341,11 +341,13 @@ public:
                 window.draw(circle_shape);
             }
 
-            OperatorMove();
             OperatorCollideWithBorder();
-            OperatorCollideWithParticle(mode);
+            OperatorCollideWithParticle();
+            OperatorMove();
+
+            cout << "Energy: " << OperatorComputeEnergy() << endl;
             window.display();
-            // cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
+//            cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
 
             if(epoch % 1000 == 0)
             {

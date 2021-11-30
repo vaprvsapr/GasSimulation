@@ -4,9 +4,11 @@
 
 int main()
 {
-    System system({1000, 800}, MODE::FIRST);
+    System system({1000, 800}, MODE::THIRD);
 
-    system.AddParticles(1000, 1, {5, 1});
-
+    system.AddParticles(200, 1, {2, 10});
+    system.AddParticles(10, 1, {20, 1000});
+//    system.AddParticle({100, 100}, {1, 0}, {100, 1000});
+//    system.AddParticle({700, 101}, {-1, 0}, {100, 1000});
     system.ShowSimulationWindow();
 }
