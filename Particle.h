@@ -17,18 +17,10 @@ public:
 
     Particle(Vec2D _position,
              Vec2D _velocity,
-             Properties _properties)
-    {
-        position = _position;
-        velocity = _velocity;
-        properties = _properties;
-    }
+             Properties _properties);
 };
 
-bool operator==(const Particle lhs, const Particle rhs)
-{
-    return lhs.position == rhs.position and lhs.velocity == rhs.velocity and lhs.properties == rhs.properties;
-}
+bool operator==(Particle lhs, Particle rhs);
 
 
 #endif //GASSIMULATION_PARTICLE_H
