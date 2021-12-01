@@ -14,4 +14,5 @@ public:
 };
 
 bool operator==(Properties lhs, Properties rhs);
+
 #endif //GASSIMULATION_PROPERTIES_H

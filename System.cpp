@@ -35,18 +35,20 @@ void System::OperatorCollideWithBorder()
     }
 }
 
-void System::OperatorCollideWithParticle()
+void System::OperatorCollideParticles()
 {
-    switch (mode)
+    switch (simulation_settings.collision_mode)
     {
-        case MODE::FIRST:
+        case COLLISION_MODE::FIRST:
             FirstMethod();
             break;
-        case MODE::SECOND:
+        case COLLISION_MODE::SECOND:
             SecondMethod(20);
             break;
-        case MODE::THIRD:
+        case COLLISION_MODE::THIRD:
             ThirdMethod();
+            break;
+        case COLLISION_MODE::DISABLED:
             break;
     }
 }
@@ -209,16 +211,16 @@ void System::ThirdMethod()
     }
 }
 
-System::System(Vec2D _system_size, MODE _mode):
-window(sf::RenderWindow(sf::VideoMode(
-        unsigned(_system_size.x),
-        unsigned(_system_size.y)),
-                        "Simulation window.")),
-black_background({float(_system_size.x), float(_system_size.y)})
+System::System(Vec2D _system_size, SimulationSettings _simulation_settings):
+        simulation_window(sf::RenderWindow(sf::VideoMode(
+                                                   unsigned(_system_size.x),
+                                                   unsigned(_system_size.y)),
+                                           "Simulation simulation_window.")),
+        black_background({float(_system_size.x), float(_system_size.y)}),
+        simulation_settings(_simulation_settings)
 {
     system_size = _system_size;
     black_background.setFillColor((sf::Color::Black));
-    mode = _mode;
 }
 
 void System::AddParticle(Vec2D _position, Vec2D _velocity, Properties _properties)
@@ -264,3 +266,7 @@ void System::AddParticles(unsigned int _number_of_particles,
     }
 }
 
+double System::AverageNumberOfCollisions()
+{
+    return (double(number_of_collisions_between_particles) / double(particles.size()));
+}
