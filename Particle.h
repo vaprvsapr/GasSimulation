@@ -22,5 +22,4 @@ public:
 
 bool operator==(Particle lhs, Particle rhs);
 
-
 #endif //GASSIMULATION_PARTICLE_H
