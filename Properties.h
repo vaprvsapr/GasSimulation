@@ -5,7 +5,6 @@
 #ifndef GASSIMULATION_PROPERTIES_H
 #define GASSIMULATION_PROPERTIES_H
 
-
 class Properties {
 public:
     double radius;
@@ -14,9 +13,5 @@ public:
     Properties() = default;
 };
 
-bool operator==(const Properties lhs, const Properties rhs)
-{
-    return lhs.radius == rhs.radius and lhs.mass == rhs.mass;
-}
-
+bool operator==(Properties lhs, Properties rhs);
 #endif //GASSIMULATION_PROPERTIES_H

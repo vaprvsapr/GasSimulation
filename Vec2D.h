@@ -5,6 +5,8 @@
 #ifndef GASSIMULATION_VEC2D_H
 #define GASSIMULATION_VEC2D_H
 
+#pragma once
+
 #include <cmath>
 
 class Vec2D {

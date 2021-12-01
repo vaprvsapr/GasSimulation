@@ -5,6 +5,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)
 
-add_executable(GasSimulation main.cpp Vec2D.h Particle.h Properties.h System.h Timer.h)
+add_executable(GasSimulation main.cpp Vec2D.h Particle.h Properties.h System.h Timer.h Properties.cpp)
 
 target_link_libraries(GasSimulation sfml-graphics sfml-audio)

@@ -11,6 +11,9 @@
 #include <random>
 #include <algorithm>
 #include <set>
+#include <iostream>
+
+
 using namespace std;
 
 enum class MODE {
@@ -50,6 +53,34 @@ private:
                 pow(lhs.position.x - rhs.position.x, 2) +
                 pow(lhs.position.y - rhs.position.y, 2)) <=
                 (lhs.properties.radius + rhs.properties.radius));
+    }
+
+    void OperatorCollideWithBorder()
+    {
+        for(auto& particle : particles)
+        {
+            pair<bool, bool> is_contact_with_border = IsContactWithBorder(particle);
+            if(is_contact_with_border.first)
+                particle.velocity.y *= -1;
+            if(is_contact_with_border.second)
+                particle.velocity.x *= -1;
+        }
+    }
+
+    void OperatorCollideWithParticle()
+    {
+        switch (mode)
+        {
+            case MODE::FIRST:
+                OperatorCollideWithParticleComplexityNSquared();
+                break;
+            case MODE::SECOND:
+                OperatorCollideWithParticleComplexityNSquaredDividedByM(20);
+                break;
+            case MODE::THIRD:
+                OperatorCollideWithParticleTHIRD();
+                break;
+        }
     }
 public:
     explicit System(Vec2D _system_size, MODE _mode):
@@ -145,15 +176,6 @@ public:
         }
     }
 
-    void CollideWithBorder(Particle& _particle)
-    {
-        pair<bool, bool> is_contact_with_border = IsContactWithBorder(_particle);
-        if(is_contact_with_border.first)
-            _particle.velocity.y *= -1;
-        if(is_contact_with_border.second)
-            _particle.velocity.x *= -1;
-    }
-
     [[nodiscard]] Vec2D GetSystemSize() const
     {
         return system_size;
@@ -170,30 +192,6 @@ public:
         {
             particle.position = {particle.position.x + particle.velocity.x * delta_time, particle.position.y + particle.velocity.y * delta_time};
             particle.collided = false;
-        }
-    }
-
-    void OperatorCollideWithBorder()
-    {
-        for(auto& particle : particles)
-        {
-            CollideWithBorder(particle);
-        }
-    }
-
-    void OperatorCollideWithParticle()
-    {
-        switch (mode)
-        {
-            case MODE::FIRST:
-                OperatorCollideWithParticleComplexityNSquared();
-                break;
-            case MODE::SECOND:
-                OperatorCollideWithParticleComplexityNSquaredDividedByM(20);
-                break;
-            case MODE::THIRD:
-                OperatorCollideWithParticleTHIRD();
-                break;
         }
     }
 
