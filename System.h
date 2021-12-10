@@ -50,12 +50,11 @@ private:
     unsigned number_of_particles = 0;
     unsigned long long number_of_collisions_between_particles = 0;
     double delta_time = 0.1;
+    double max_abs_velocity = 0;
     SimulationSettings simulation_settings;
 
     vector<Particle> particles = {};
-private:
-    sf::RenderWindow simulation_window;
-    sf::RectangleShape black_background;
+
 
 private:
     pair<bool, bool> IsContactWithBorder(Particle& _particle) const;
@@ -69,6 +68,7 @@ private:
     void OperatorMove();
     double OperatorComputeEnergy() const;
     void OperatorGravity();
+    void OperatorComputeMaxwellDistribution(vector<sf::RectangleShape>& shapes_of_columns, Vec2D& distribution_window_size);
 public:
     explicit System(Vec2D _system_size, SimulationSettings _simulation_settings);
 
@@ -78,52 +78,9 @@ public:
 
     double AverageNumberOfCollisions();
 
-    void RunSimulation()
-    {
-        // to be implemented
-    }
+    void RunSimulation();
 
-
-    void ShowSimulationWindow()
-    {
-        int epoch = 0;
-        clock_t time = clock();
-        while(simulation_window.isOpen())
-        {
-            epoch++;
-            simulation_window.clear();
-            sf::Event event{};
-            while(simulation_window.pollEvent(event))
-            {
-                if(event.type == sf::Event::Closed)
-                    simulation_window.close();
-            }
-
-            for(auto& particle : particles)
-            {
-                sf::CircleShape circle_shape;
-                circle_shape.setRadius(float(particle.properties.radius));
-                circle_shape.setPosition(
-                        float(particle.position.x - particle.properties.radius),
-                        float(particle.position.y - particle.properties.radius));
-                simulation_window.draw(circle_shape);
-            }
-
-            OperatorCollideWithBorder();
-            OperatorCollideParticles();
-            OperatorMove();
-
-            cout << "Energy: " << OperatorComputeEnergy() << endl;
-            simulation_window.display();
-//            cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
-
-            if(epoch % 1000 == 0)
-            {
-                cout << "1000 epochs last for " << (clock() - time) / 1000<< " ms." << endl;
-                time = clock();
-            }
-        }
-    }
+    void ShowSimulationWindow();
 };
 
 #endif //GASSIMULATION_SYSTEM_H

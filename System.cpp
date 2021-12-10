@@ -4,6 +4,14 @@
 
 #include "System.h"
 
+
+
+System::System(Vec2D _system_size, SimulationSettings _simulation_settings):
+        simulation_settings(_simulation_settings)
+{
+    system_size = _system_size;
+}
+
 pair<bool, bool> System::IsContactWithBorder(Particle &_particle) const
 {
     bool is_contact_with_horizontal_boarder =
@@ -100,11 +108,15 @@ double System::OperatorComputeEnergy() const
 
 void System::OperatorMove()
 {
+    max_abs_velocity = 0;
     for(auto& particle : particles)
     {
+        if(sqrt(particle.velocity.SquareLengthVec2D()) > max_abs_velocity)
+            max_abs_velocity = sqrt(particle.velocity.SquareLengthVec2D());
         particle.position = {particle.position.x + particle.velocity.x * delta_time, particle.position.y + particle.velocity.y * delta_time};
         particle.collided = false;
     }
+    delta_time = 0.5 / max_abs_velocity;
 }
 
 void System::OperatorGravity()
@@ -211,18 +223,6 @@ void System::ThirdMethod()
     }
 }
 
-System::System(Vec2D _system_size, SimulationSettings _simulation_settings):
-        simulation_window(sf::RenderWindow(sf::VideoMode(
-                                                   unsigned(_system_size.x),
-                                                   unsigned(_system_size.y)),
-                                           "Simulation simulation_window.")),
-        black_background({float(_system_size.x), float(_system_size.y)}),
-        simulation_settings(_simulation_settings)
-{
-    system_size = _system_size;
-    black_background.setFillColor((sf::Color::Black));
-}
-
 void System::AddParticle(Vec2D _position, Vec2D _velocity, Properties _properties)
 {
     particles.emplace_back(_position, _velocity, _properties);
@@ -269,4 +269,130 @@ void System::AddParticles(unsigned int _number_of_particles,
 double System::AverageNumberOfCollisions()
 {
     return (double(number_of_collisions_between_particles) / double(particles.size()));
+}
+
+void System::RunSimulation()
+{
+
+    if(!simulation_settings.show_simulation_window and !simulation_settings.show_diagram)
+    {
+        while(true)
+        {
+            OperatorMove();
+            if(simulation_settings.collide_with_border)
+                OperatorCollideWithBorder();
+            OperatorCollideParticles();
+        }
+    }
+
+
+    if(simulation_settings.show_simulation_window and !simulation_settings.show_diagram)
+    {
+        sf::RenderWindow simulation_window(sf::RenderWindow(sf::VideoMode(
+                                                                    unsigned(system_size.x),
+                                                                    unsigned(system_size.y)),
+                                                            "Simulation simulation_window."));
+        int epoch = 0;
+        clock_t time = clock();
+        while(simulation_window.isOpen())
+        {
+            epoch++;
+            simulation_window.clear();
+            sf::Event event{};
+            while(simulation_window.pollEvent(event))
+            {
+                if(event.type == sf::Event::Closed)
+                    simulation_window.close();
+            }
+
+            for(auto& particle : particles)
+            {
+                sf::CircleShape circle_shape;
+                circle_shape.setRadius(float(particle.properties.radius));
+                circle_shape.setPosition(
+                        float(particle.position.x - particle.properties.radius),
+                        float(particle.position.y - particle.properties.radius));
+                simulation_window.draw(circle_shape);
+            }
+
+            OperatorCollideWithBorder();
+            OperatorCollideParticles();
+            OperatorMove();
+
+            cout << "Energy: " << OperatorComputeEnergy() << endl;
+            simulation_window.display();
+//            cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
+
+            if(epoch % 1000 == 0)
+            {
+                cout << "1000 epochs last for " << (clock() - time) / 1000<< " ms." << endl;
+                time = clock();
+            }
+            cout << "Delta time: " << delta_time << endl;
+        }
+
+    }
+
+    if(simulation_settings.show_diagram and ! simulation_settings.show_simulation_window)
+    {
+        unsigned long long epoch = 0;
+        const int number_of_columns = 50;
+        Vec2D distribution_window_size{500, 500};
+        sf::RenderWindow distribution_window(sf::RenderWindow(sf::VideoMode(
+                                                                    unsigned(distribution_window_size.x),
+                                                                    unsigned(distribution_window_size.y)),
+                                                            "Velocity distribution."));
+        sf::RectangleShape shapes_of_columns[number_of_columns];
+        while(distribution_window.isOpen())
+        {
+            epoch++;
+            sf::Event event{};
+            while(distribution_window.pollEvent(event))
+            {
+                if(event.type == sf::Event::Closed)
+                    distribution_window.close();
+            }
+
+            {
+                int data[number_of_columns];
+                for(auto& element : data)
+                    element = 0;
+
+                double velocity_interval = max_abs_velocity / static_cast<double>(number_of_columns);
+
+                for(auto& particle : particles)
+                {
+                    data[static_cast<unsigned>(floor(sqrt(particle.velocity.SquareLengthVec2D() - 0.001) / velocity_interval))]++;
+                }
+
+                int max_number = 0;
+                for(auto& element : data)
+                    max_number = max(max_number, element);
+
+                double vertical_interval = distribution_window_size.y / max_number;
+                double horizontal_interval = distribution_window_size.x / static_cast<double>(number_of_columns);
+
+
+                for(int index = 0; index < number_of_columns; index++)
+                {
+                    sf::RectangleShape column;
+                    column.setSize({static_cast<float>(horizontal_interval),
+                                    static_cast<float>(data[index] * vertical_interval)});
+                    column.setPosition(static_cast<float>(horizontal_interval * index),
+                                       static_cast<float>(distribution_window_size.y - data[index] * vertical_interval));
+
+                    shapes_of_columns[index] = column;
+                }
+
+                distribution_window.clear();
+                for(auto& column_shape : shapes_of_columns)
+                    distribution_window.draw(column_shape);
+                distribution_window.display();
+            }
+
+            OperatorMove();
+            OperatorCollideWithBorder();
+            OperatorCollideParticles();
+        }
+    }
 }

@@ -15,6 +15,8 @@ public:
     Vec2D() = default;
 
     [[nodiscard]] double SquareLengthVec2D() const;
+
+
 };
 
 double ScalarMultiplication(const Vec2D& lhs,const Vec2D& rhs);
