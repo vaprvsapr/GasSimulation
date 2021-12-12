@@ -116,7 +116,8 @@ void System::OperatorMove()
         particle.position = {particle.position.x + particle.velocity.x * delta_time, particle.position.y + particle.velocity.y * delta_time};
         particle.collided = false;
     }
-    delta_time = 0.5 / max_abs_velocity;
+    if(simulation_settings.adaptive_time)
+        delta_time = 0.5 / max_abs_velocity;
 }
 
 void System::OperatorGravity()
@@ -266,6 +267,37 @@ void System::AddParticles(unsigned int _number_of_particles,
     }
 }
 
+void System::AddParticlesInitial(unsigned int _number_of_particles,
+                                 double _initial_velocity,
+                                 Properties _properties)
+{
+
+    unsigned grid_size = ceil(sqrt(_number_of_particles));
+    double vertical_grid_interval = system_size.y / (grid_size + 1);
+    double horizontal_grid_interval = system_size.x / (grid_size + 1);
+
+    for(unsigned i = 1; i < grid_size + 1; i++)
+    {
+        for(unsigned j = 1; j < grid_size + 1; j++)
+        {
+            double position_x = j * horizontal_grid_interval;
+            double position_y = i * vertical_grid_interval;
+
+            double velocity_x = drand48() * (_initial_velocity);
+            double velocity_y = (drand48() > 0.5 ? 1 : -1 ) *
+                                sqrt(_initial_velocity * _initial_velocity -
+                                     velocity_x * velocity_x);
+
+            Particle new_particle({position_x, position_y},
+                                  {velocity_x, velocity_y},
+                                  _properties);
+
+            particles.push_back(new_particle);
+        }
+    }
+
+}
+
 double System::AverageNumberOfCollisions()
 {
     return (double(number_of_collisions_between_particles) / double(particles.size()));
@@ -276,26 +308,33 @@ void System::RunSimulation()
 
     if(!simulation_settings.show_simulation_window and !simulation_settings.show_diagram)
     {
+
+        auto time = clock();
         while(true)
         {
+            if(epoch == 100)
+                cout << "time for 100 epochs and for " << particles.size() << " particles : " << (clock() - time) / 1000 << "ms" << endl;
+            epoch++;
             OperatorMove();
             if(simulation_settings.collide_with_border)
                 OperatorCollideWithBorder();
             OperatorCollideParticles();
+
+            cout << "epoch: " << epoch << endl;
         }
     }
 
 
     if(simulation_settings.show_simulation_window and !simulation_settings.show_diagram)
     {
+
         sf::RenderWindow simulation_window(sf::RenderWindow(sf::VideoMode(
                                                                     unsigned(system_size.x),
                                                                     unsigned(system_size.y)),
                                                             "Simulation simulation_window."));
-        int epoch = 0;
-        clock_t time = clock();
         while(simulation_window.isOpen())
         {
+
             epoch++;
             simulation_window.clear();
             sf::Event event{};
@@ -323,11 +362,6 @@ void System::RunSimulation()
             simulation_window.display();
 //            cout << "average number of collisions: " << AverageNumberOfCollisions() << endl;
 
-            if(epoch % 1000 == 0)
-            {
-                cout << "1000 epochs last for " << (clock() - time) / 1000<< " ms." << endl;
-                time = clock();
-            }
             cout << "Delta time: " << delta_time << endl;
         }
 
@@ -335,8 +369,7 @@ void System::RunSimulation()
 
     if(simulation_settings.show_diagram and ! simulation_settings.show_simulation_window)
     {
-        unsigned long long epoch = 0;
-        const int number_of_columns = 50;
+        const int number_of_columns = 100;
         Vec2D distribution_window_size{500, 500};
         sf::RenderWindow distribution_window(sf::RenderWindow(sf::VideoMode(
                                                                     unsigned(distribution_window_size.x),
@@ -346,6 +379,7 @@ void System::RunSimulation()
         while(distribution_window.isOpen())
         {
             epoch++;
+
             sf::Event event{};
             while(distribution_window.pollEvent(event))
             {
@@ -353,16 +387,16 @@ void System::RunSimulation()
                     distribution_window.close();
             }
 
+            int data[number_of_columns];
             {
-                int data[number_of_columns];
                 for(auto& element : data)
                     element = 0;
 
-                double velocity_interval = max_abs_velocity / static_cast<double>(number_of_columns);
+                double velocity_interval = max_abs_velocity / number_of_columns;
 
                 for(auto& particle : particles)
                 {
-                    data[static_cast<unsigned>(floor(sqrt(particle.velocity.SquareLengthVec2D() - 0.001) / velocity_interval))]++;
+                    data[static_cast<unsigned>(floor(sqrt(particle.velocity.SquareLengthVec2D()) / velocity_interval))]++;
                 }
 
                 int max_number = 0;
@@ -372,6 +406,87 @@ void System::RunSimulation()
                 double vertical_interval = distribution_window_size.y / max_number;
                 double horizontal_interval = distribution_window_size.x / static_cast<double>(number_of_columns);
 
+                for(int index = 0; index < number_of_columns; index++)
+                {
+                    sf::RectangleShape column;
+                    column.setSize({static_cast<float>(horizontal_interval),
+                                    static_cast<float>(data[index] * vertical_interval)});
+                    column.setPosition(static_cast<float>(horizontal_interval * index),
+                                       static_cast<float>(distribution_window_size.y - data[index] * vertical_interval));
+                    shapes_of_columns[index] = column;
+                }
+
+                distribution_window.clear();
+                for(auto& column_shape : shapes_of_columns)
+                    distribution_window.draw(column_shape);
+                distribution_window.display();
+
+                cout << "epoch: " << epoch << endl;
+            }
+
+
+            OperatorCollideWithBorder();
+            OperatorCollideParticles();
+            OperatorMove();
+        }
+
+    }
+
+    if(simulation_settings.show_diagram and simulation_settings.show_simulation_window)
+    {
+        const int number_of_columns = 100;
+        Vec2D distribution_window_size{500, 500};
+        sf::RenderWindow distribution_window(sf::RenderWindow(sf::VideoMode(
+                                                                      unsigned(distribution_window_size.x),
+                                                                      unsigned(distribution_window_size.y)),
+                                                              "Velocity distribution."));
+        sf::RenderWindow simulation_window(sf::RenderWindow(sf::VideoMode(
+                                                                    unsigned(system_size.x),
+                                                                    unsigned(system_size.y)),
+                                                            "Simulation simulation_window."));
+
+        sf::RectangleShape shapes_of_columns[number_of_columns];
+        while(distribution_window.isOpen() and simulation_window.isOpen())
+        {
+            epoch++;
+
+            sf::Event event{};
+            while(distribution_window.pollEvent(event))
+            {
+                if(event.type == sf::Event::Closed)
+                {
+                    distribution_window.close();
+                    simulation_window.close();
+                }
+
+            }
+            while(simulation_window.pollEvent(event))
+            {
+                if(event.type == sf::Event::Closed)
+                {
+                    distribution_window.close();
+                    simulation_window.close();
+                }
+            }
+
+            int data[number_of_columns];
+            {
+                for(auto& element : data)
+                    element = 0;
+
+                double velocity_interval = max_abs_velocity / number_of_columns;
+
+                for(auto& particle : particles)
+                {
+                    data[static_cast<unsigned>(floor(sqrt(particle.velocity.SquareLengthVec2D()) / velocity_interval))]++;
+                }
+
+                int max_number = 0;
+                for(auto& element : data)
+                    max_number = max(max_number, element);
+
+                double vertical_interval = distribution_window_size.y / max_number;
+                double horizontal_interval = distribution_window_size.x / static_cast<double>(number_of_columns);
 
                 for(int index = 0; index < number_of_columns; index++)
                 {
@@ -380,7 +495,6 @@ void System::RunSimulation()
                                     static_cast<float>(data[index] * vertical_interval)});
                     column.setPosition(static_cast<float>(horizontal_interval * index),
                                        static_cast<float>(distribution_window_size.y - data[index] * vertical_interval));
-
                     shapes_of_columns[index] = column;
                 }
 
@@ -388,11 +502,31 @@ void System::RunSimulation()
                 for(auto& column_shape : shapes_of_columns)
                     distribution_window.draw(column_shape);
                 distribution_window.display();
+
+                cout << "epoch: " << epoch << endl;
             }
 
-            OperatorMove();
+            simulation_window.clear();
+            for(auto& particle : particles)
+            {
+                sf::CircleShape circle_shape;
+                circle_shape.setRadius(float(particle.properties.radius));
+                circle_shape.setPosition(
+                        float(particle.position.x - particle.properties.radius),
+                        float(particle.position.y - particle.properties.radius));
+                simulation_window.draw(circle_shape);
+            }
+            simulation_window.display();
+
             OperatorCollideWithBorder();
             OperatorCollideParticles();
+            OperatorMove();
+
         }
+
     }
+}
+
+unsigned System::Epoch() const {
+    return epoch;
 }

@@ -2,15 +2,17 @@
 
 int main()
 {
-    System system({5000, 5000},
+    System system({1000, 1000},
                   SimulationSettings(
                           false,
-                          true,
+                          false,
                           COLLISION_MODE::THIRD,
                           true,
-                          false));
+                          false,
+                          true));
 
-    system.AddParticles(20000, 1, {1, 10});
+    system.AddParticlesInitial(90'000, 0.1, {1, 1});
+
 
 //    system.AddParticle({100, 100}, {1, 0}, {100, 1000});
 //    system.AddParticle({700, 101}, {-1, 0}, {100, 1000});
