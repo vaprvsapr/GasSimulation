@@ -306,7 +306,7 @@ double System::AverageNumberOfCollisions()
 void System::RunSimulation()
 {
 
-    if(!simulation_settings.show_simulation_window and !simulation_settings.show_diagram)
+    if(!simulation_settings.show_simulation_window.first and !simulation_settings.show_diagram)
     {
 
         auto time = clock();
@@ -325,7 +325,7 @@ void System::RunSimulation()
     }
 
 
-    if(simulation_settings.show_simulation_window and !simulation_settings.show_diagram)
+    if(simulation_settings.show_simulation_window.first and !simulation_settings.show_diagram)
     {
 
         sf::RenderWindow simulation_window(sf::RenderWindow(sf::VideoMode(
@@ -367,9 +367,9 @@ void System::RunSimulation()
 
     }
 
-    if(simulation_settings.show_diagram and ! simulation_settings.show_simulation_window)
+    if(simulation_settings.show_diagram and !simulation_settings.show_simulation_window.first)
     {
-        const int number_of_columns = 100;
+        const int number_of_columns = simulation_settings.show_simulation_window.second;
         Vec2D distribution_window_size{500, 500};
         sf::RenderWindow distribution_window(sf::RenderWindow(sf::VideoMode(
                                                                     unsigned(distribution_window_size.x),
@@ -432,9 +432,9 @@ void System::RunSimulation()
 
     }
 
-    if(simulation_settings.show_diagram and simulation_settings.show_simulation_window)
+    if(simulation_settings.show_diagram and simulation_settings.show_simulation_window.first)
     {
-        const int number_of_columns = 100;
+        const int number_of_columns = simulation_settings.show_simulation_window.second;
         Vec2D distribution_window_size{500, 500};
         sf::RenderWindow distribution_window(sf::RenderWindow(sf::VideoMode(
                                                                       unsigned(distribution_window_size.x),

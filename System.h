@@ -24,14 +24,14 @@ enum class COLLISION_MODE{
 };
 
 struct SimulationSettings {
-    bool show_simulation_window;
+    pair<bool, int> show_simulation_window;
     bool show_diagram;
     bool collide_with_border;
     bool gravity;
     bool adaptive_time;
     COLLISION_MODE collision_mode;
 
-    explicit SimulationSettings(bool _show_simulation_window = true,
+    explicit SimulationSettings(pair<bool, int> _show_simulation_window = {true, 50},
                        bool _show_diagram = true,
                        COLLISION_MODE _collision_mode = COLLISION_MODE::FIRST,
                        bool _collide_with_border = true,
