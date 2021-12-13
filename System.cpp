@@ -305,7 +305,6 @@ double System::AverageNumberOfCollisions()
 
 void System::RunSimulation()
 {
-
     if(!simulation_settings.show_simulation_window.first and !simulation_settings.show_diagram)
     {
 
@@ -364,7 +363,6 @@ void System::RunSimulation()
 
             cout << "Delta time: " << delta_time << endl;
         }
-
     }
 
     if(simulation_settings.show_diagram and !simulation_settings.show_simulation_window.first)
@@ -429,7 +427,6 @@ void System::RunSimulation()
             OperatorCollideParticles();
             OperatorMove();
         }
-
     }
 
     if(simulation_settings.show_diagram and simulation_settings.show_simulation_window.first)

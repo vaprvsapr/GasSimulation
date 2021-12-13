@@ -11,7 +11,7 @@ int main()
                           false,
                           true));
 
-    system.AddParticlesInitial(200'000, 0.1, {1, 1});
+    system.AddParticlesInitial(10'000, 0.1, {1, 1});
 
 
 //    system.AddParticle({100, 100}, {1, 0}, {100, 1000});
